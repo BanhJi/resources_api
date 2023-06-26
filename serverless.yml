@@ -1,0 +1,93 @@
+service: resources
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  versionFunctions: false
+  stage: dev
+  releasedVersion: v1
+  stackName: ${self:service}-${self:custom.stage}
+  region: ap-southeast-1 # this is the region that we deploy our lambda to
+  deploymentBucket:
+    blockPublicAccess: true # com.serverless.${opt:region, self:provider.region}.deploy
+    name: com.serverless.${opt:region, self:provider.region}.deploy
+    versioning: false
+  environment:
+    item_table_invoice: invoices-${self:custom.stage}
+    item_table: resources
+    item_entity: Entity-${self:custom.stage}
+    item_table_inventory: inventories-${self:custom.stage}
+    item_table_balance: balance-${self:custom.stage}
+    url: https://${self:custom.stage}-apis.banhji.com
+    stage: ${self:custom.stage}
+  iamRoleStatements:
+    - Effect: "Allow" # or Deny
+      Resource: "*"
+      Action: # this is the action against dynamodb
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"
+        - "dynamodb:BatchWriteItem"
+    - Effect: "Allow"
+      Resource: "*"
+      Action:
+        - "sns:*"
+    - Effect: "Allow"
+      Resource: "*"
+      Action:
+        - "s3:*"
+plugins:
+  - serverless-domain-manager
+package:
+  individually: true
+  patterns:
+    - "!**/*"
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  domains:
+    prod: apis.banhji.com
+    staging: staging-apis.banhji.com
+    dev: dev-apis.banhji.com
+  customDomain:
+    basePath: ${self:service}
+    domainName: ${self:custom.domains.${self:custom.stage}}
+    stage: ${opt:stage, self:provider.stage}
+    certificateName: "*.banhji.com"
+    createRout53Record: true
+
+functions:
+  addResource:
+    handler: api/content/add.index
+    package:
+      patterns:
+        - config/**
+        - api/content/add.js
+      individually: true
+    events:
+      - http:
+          path: content/add
+          method: post
+          cors: true
+          request:
+            parameters:
+              paths:
+                institute_id: true
+  getResource:
+    handler: api/content/get.index
+    package:
+      patterns:
+        - config/**
+        - api/content/get.js
+      individually: true
+    events:
+      - http:
+          path: content/get
+          method: post
+          cors: true
+          request:
+            parameters:
+              paths:
+                institute_id: true
