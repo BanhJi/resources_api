@@ -10,16 +10,17 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient()
 
 module.exports.index = async (event, context) => {
     const table = process.env.item_table
-    const pk =  event.pathParameters.institute_id
+    const pk =  'resource'
     const query = event.queryStringParameters
     console.log(query)
     let params = {
       ExpressionAttributeValues: {
-        ':pk': pk,
-        ':sk': 'rse-'
+        ':sk': pk,
+        ':pk': 'rse-'
       },
-      KeyConditionExpression: 'pk = :pk and begins_with(sk , :sk)',
-      TableName: table
+      KeyConditionExpression: 'sk = :sk and begins_with(pk , :pk)',
+      TableName: table,
+      IndexName: 'GSI1',
     }
     try {
       const data = await dynamoDb.query(params).promise()

@@ -6,7 +6,6 @@ const json = require('config/response.js')
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
 const code = require('config/code.js')
 const uuid = require('uuid')
-const axios = require('axios')
 
 module.exports.index = async (event) => {
   try {
@@ -15,16 +14,16 @@ module.exports.index = async (event) => {
     const data = JSON.parse(event.body)
       let head = 'rse-'
       if (data.id === undefined || data.id === '') {
-        head = 'rse-' + data.transaction_id
+        head = 'rse-'+uuid.v4()
       } else {
         head = data.id
       }
-      const pk =  event.pathParameters.institute_id
+      const sk =  data.type
       const param = {
         TableName: table,
         Item: {
-          pk: pk,
-          sk: head,
+          pk: head,
+          sk: sk,
           ...data ,
           type: data.type,
           createdAt: timestamp,
@@ -32,8 +31,6 @@ module.exports.index = async (event) => {
         }
       }
       await dynamoDb.put(param).promise()
-      console.log(' notification' , param.Item)
-      await onSendNotification(param.Item);
       return {
         statusCode: code.httpStatus.Created,
         headers: {

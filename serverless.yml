@@ -64,6 +64,7 @@ functions:
     package:
       patterns:
         - config/**
+        - node_modules/uuid/**
         - api/content/add.js
       individually: true
     events:
@@ -71,10 +72,6 @@ functions:
           path: content/add
           method: post
           cors: true
-          request:
-            parameters:
-              paths:
-                institute_id: true
   getResource:
     handler: api/content/get.index
     package:
@@ -85,9 +82,5 @@ functions:
     events:
       - http:
           path: content/get
-          method: post
+          method: get
           cors: true
-          request:
-            parameters:
-              paths:
-                institute_id: true
