@@ -59,13 +59,15 @@ custom:
     createRout53Record: true
 
 functions:
+
   addResource:
     handler: api/content/add.index
     package:
       patterns:
-        - config/**
-        - node_modules/uuid/**
+        - config/** 
+        - node_modules/**
         - api/content/add.js
+        - api/function/jwt.js
       individually: true
     events:
       - http:
@@ -84,3 +86,57 @@ functions:
           path: content/get
           method: get
           cors: true
+  getResourceDetail:
+    handler: api/content/get.detail
+    package:
+      patterns:
+        - config/**
+        - api/content/get.js
+      individually: true
+    events:
+      - http:
+          path: content/view
+          method: get
+          cors: true
+  login:
+    handler: api/auth/auth.login
+    package:
+      patterns:
+        - config/**
+        - node_modules/**
+        - api/auth/auth.js
+        - api/function/jwt.js
+      individually: true
+    events:
+      - http:
+          path: auth/login
+          method: post
+          cors: true
+  me:
+    handler: api/auth/auth.me
+    package:
+      patterns:
+        - config/**
+        - node_modules/**
+        - api/auth/auth.js
+      individually: true
+    events:
+      - http:
+          path: auth/me
+          method: get
+          cors: true
+  createUser:
+    handler: api/auth/auth.create
+    package:
+      patterns:
+        - config/**
+        - node_modules/uuid/**
+        - node_modules/jsonwebtoken/**
+        - api/auth/auth.js
+      individually: true
+    events:
+      - http:
+          path: auth/add
+          method: post
+          cors: true
+  

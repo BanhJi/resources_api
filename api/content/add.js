@@ -6,9 +6,18 @@ const json = require('config/response.js')
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
 const code = require('config/code.js')
 const uuid = require('uuid')
+const jwt = require('../function/jwt')
 
 module.exports.index = async (event) => {
   try {
+    if(event.headers.Authorization == undefined) {
+      return  {"statusCode": 401, "body" : "Unauthorized"}
+    }
+    let check = await jwt.verify(event.headers.Authorization.split(' ')[1]);
+    if(!check) {
+      return  {"statusCode": 401, "body" : "Unauthorized"}
+    }
+
     const table = process.env.item_table
     const timestamp = new Date().toISOString()
     const data = JSON.parse(event.body)
@@ -26,6 +35,7 @@ module.exports.index = async (event) => {
           sk: sk,
           ...data ,
           type: data.type,
+
           createdAt: timestamp,
           updatedAt: timestamp,
         }

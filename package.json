@@ -19,6 +19,7 @@
   "dependencies": {
     "aws-sdk": "^2.610.0",
     "axios": "^1.4.0",
+    "jsonwebtoken": "^9.0.0",
     "serverless-domain-manager": "^5.1.0",
     "uuid": "^3.4.0"
   },
